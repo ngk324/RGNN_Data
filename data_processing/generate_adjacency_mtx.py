@@ -9,10 +9,14 @@ f.close()
 
 cores = cores[:100]
 
-f = open('./raw/weights_zip_A.txt', 'w')
+rawpath = '../weights_zip/raw/'
+if not os.path.exists(rawpath):
+    os.makedirs(rawpath)
+
+f = open(rawpath + 'weights_zip_A.txt', 'w')
 num_previous_nodes = 0
 for i in range(1,101):
-    dir = './weights/' + str(i)
+    dir = '../weights_zip/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = set([core])
     one_hop_nbrs.update(find_1hop_neighbors(dir, core))

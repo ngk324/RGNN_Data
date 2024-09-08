@@ -9,9 +9,9 @@ f.close()
 
 cores = cores[:100]
 
-f = open('./raw/weights_zip_edge_labels.txt', 'w')
+f = open('../weights_zip/raw/weights_zip_edge_labels.txt', 'w')
 for i in range(1,101):
-    dir = './weights/' + str(i)
+    dir = '../weights_zip/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = set([core])
     one_hop_nbrs.update(find_1hop_neighbors(dir, core))

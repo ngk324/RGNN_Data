@@ -7,10 +7,10 @@ with open('./cores.txt') as f:
     cores = [line.rstrip() for line in f]
 f.close()
 
-f = open('./raw/weights_zip_graph_labels.txt', 'w')
+f = open('../weights_zip/raw/weights_zip_graph_labels.txt', 'w')
 cores = cores[:100]
 for i in range(1,101):
-    dir = './weights/' + str(i)
+    dir = '../weights_zip/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = find_1hop_neighbors(dir, core)
     one_hop_nbrs = list(one_hop_nbrs)

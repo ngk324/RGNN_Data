@@ -9,6 +9,9 @@ def pause():
     programPause = input("Press the <ENTER> key to continue...")
 
 class MyOwnDataset(InMemoryDataset):
+    
+    num_node_labels = 3
+    
     def __init__(self, transform=None, pre_transform=None):
         super().__init__(None, transform, pre_transform)
         # torch.serialization.add_safe_globals([MyOwnDataset, InMemoryDataset])
@@ -16,8 +19,11 @@ class MyOwnDataset(InMemoryDataset):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=FutureWarning)
             self.data, self.slices = torch.load(self.processed_paths[0])
-        self.num_node_labels = 3
+        self.num_node_labels = self.num_node_labels
         self.process()
+        
+    # def __num_node_labels__(self):
+    #     return self.num_node_labels
 
     @property
     def raw_file_names(self):
@@ -40,7 +46,7 @@ class MyOwnDataset(InMemoryDataset):
         torch.save(self.collate(data_list), self.processed_paths[0])
 
     def process_(self):
-        dir = "../Dataset/weights_zip/raw/weights_zip_"
+        dir = "../weights_zip/raw/weights_zip_"
         adjacency_path = dir + "A.txt"
         graph_labels_path = dir + "graph_labels.txt"
         node_labels_path = dir + "node_labels.txt"

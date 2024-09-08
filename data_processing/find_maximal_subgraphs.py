@@ -4,7 +4,7 @@ import os
 Re-organize all data in this folder into a large matrix
 """
 
-dir = "./weights"
+dir = "../weights_zip/weights/"
 graphlst = list(map(int, os.listdir(dir)))
 graphlst.sort()
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     f = open("cores.txt", 'w')
 
     for i in range(1,101):
-        directory = 'weights/' + str(i)
+        directory = dir + str(i)
         # Find the largest 2-hop subgraph in this graph
         max_core, max_subgraph_nodes, max_edges_count, max_edges = find_largest_2hop_subgraph_by_edges(directory)
         max_1hop_neighbors = len(find_1hop_neighbors(directory, max_core))

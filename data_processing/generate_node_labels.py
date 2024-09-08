@@ -10,7 +10,7 @@ f.close()
 num_previous_nodes = 0
 pos = []
 for i in range(1,101):
-    dir = './weights/' + str(i)
+    dir = '../weights_zip/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = find_1hop_neighbors(dir, core)
     two_hop_nbrs = find_2hop_neighbors(dir, core)
@@ -29,7 +29,7 @@ for i in range(1,101):
 
 pos = sorted(pos, key=lambda e:e[0])
 
-f = open('./raw/weights_zip_node_labels.txt', 'w')
+f = open('../weights_zip/raw/weights_zip_node_labels.txt', 'w')
 for tup in pos:
     print(tup)
     f.write(str(tup[1])+'\n')
