@@ -16,6 +16,5 @@ python3 generate_edge_labels.py      # Label each edge in the subgraph with its 
 After preparing the raw data, one may proceed to training the model:
 ```
 cd ../experiment/
-
+python3 weights_zip_GraphRegConv_Baseline_k_10.py
 ```
-
