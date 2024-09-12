@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import os
 import datetime
 import time
-from sklearn.metrics import mean_squared_error, accuracy_score
+from sklearn.metrics import mean_squared_error
 
 
 # torch.set_default_tensor_type(torch.DoubleTensor)
@@ -34,7 +34,9 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
         self.model = model
         self.lr = lr
         self.criterion = criterion
-        self.criterion_validity = torch.nn.BCELoss()
+        # self.criterion_validity = torch.nn.BCELoss()
+        # self.criterion_validity = torch.nn.L1Loss()
+        self.loss = torch.nn.MSELoss()
         self.device = device
         self.out_fun = torch.nn.Identity()
 
@@ -43,6 +45,10 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
         self.optimizer = torch.optim.AdamW(
             train_params, lr=self.lr, weight_decay=weight_decay
         )
+        # self.optimizer = torch.optim.SGD(
+        #     train_params, lr=0.01, momentum=0.9
+        # )
+
 
     def train_test_model(
         self,
@@ -69,14 +75,26 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
             epoch_start_time = time.time()
             for batch in loader_train:
                 data = batch.to(self.device)
-                
                 self.optimizer.zero_grad()
-                out, validity_out = self.model(data, hidden_layer_aggregator=aggregator)      
-
-                # loss = self.criterion(out, data.y)
-                _, loss = self.masked_loss(out, validity_out, data.y, self.criterion, self.criterion_validity)
-                # print(f"Current loss: {loss.item()}")
+                # out, validity_out = self.model(data, hidden_layer_aggregator=aggregator)
+                
+                out, _ = self.model(data, hidden_layer_aggregator=aggregator)
+                 
+                # _, loss = self.masked_loss(out, validity_out, data.y, self.criterion, self.criterion_validity)
+                
+                # print(data.y)
+                # print(out)
+                # pause()
+                
+                # loss = mean_squared_error(data.y.detach().cpu().numpy(), out.detach().cpu().numpy())
+                loss = self.loss(data.y, out)
                 loss.backward()
+                
+                # for name, param in self.model.named_parameters():
+                #     if param.grad is not None:
+                #         print(f"Grad of {name}: {param.grad.norm()}")
+                # pause()
+                
                 self.optimizer.step()
                 train_loss += loss.item() * len(out)
                 n_samples += len(out)
@@ -97,7 +115,7 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
                     f"\tvalidation: mse={mse_valid_set:.4f}, loss={loss_valid_set:.4f}, acc={acc_valid_set:.4f}"
                 )
                 print("------")
-
+                # pause()
                 train_log.write(
                     "{:d}\t{:d}\t{:.8f}\t{:.8f}\t{:.8f}\t{:.8f}\n".format(
                         epoch,
@@ -150,6 +168,13 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
                     )
                 train_loss, n_samples = 0, 0
                 epoch_time_sum = 0
+                
+            if epoch % 10 == 0:
+                for name, param in self.model.named_parameters():
+                    if param.grad is not None:
+                        print(f"Grad of {name}: {param.grad.norm()}")
+                # pause()
+            # pause()
 
     def save_model(
         self, test_name="test", path="./", epoch=None, split=None, loss="None"
@@ -179,21 +204,21 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
         loss = checkpoint["loss"]
         return self.model, self.optimizer, epoch, loss
     
-    def masked_loss(self, pred, validity_pred, target, criterion, criterion_validity):
+    # def masked_loss(self, pred, validity_pred, target, criterion, criterion_validity):
         
-        validity_pred = torch.sigmoid(validity_pred)
+    #     validity_pred = torch.sigmoid(validity_pred)
         
-        # mask = (target != -1).float()
-        mask = (target > -100).float()
+    #     # mask = (target != -1).float()
+    #     mask = (target > -100).float()
         
-        masked_pred = pred * mask
-        masked_target = target * mask
-        loss = criterion(masked_pred, masked_target)
+    #     masked_pred = pred * mask
+    #     masked_target = target * mask
+    #     loss = criterion(masked_pred, masked_target)
         
-        validity_target = (target != -1).float()
-        classification_loss = criterion_validity(validity_pred, validity_target)
+    #     validity_target = (target != -1).float()
+    #     classification_loss = criterion_validity(validity_pred, validity_target)
         
-        return loss, loss + classification_loss
+    #     return loss, loss + classification_loss
 
     def eval_model(self, loader, aggregator):
         self.model.eval()
@@ -204,35 +229,37 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
         n_batches = 0
         for batch in loader:
             data = batch.to(self.device)
+            
+            # print(f"data.x = {data.x}")
+            # print(f"data.edge_index = {data.edge_index}")
+            
             value_out, validity_out = self.model(data, aggregator)
             
             pred = predict_fn(value_out)
             
-            validity_target = (data.y != -1).float()
+            validity_target = (data.y > 1e-4).float()
             validity_pred = (validity_out > 0).float()
 
-            print(f"predicted_value is\n {pred}")
-            print(f"ground truth is\n {data.y.detach()}")
-            print(f"validity_pred is\n {validity_pred}")
-            
-            # validity_acc = accuracy_score(validity_target.cpu(), validity_pred.cpu())
-            print(f"ground truth is\n {validity_target}")
-            # print(f"there are {sum(validity_target * validity_pred)} 1's")
+            # print(f"\npredicted_value is\n {pred}")
+            # print(f"ground truth is\n {data.y.detach()}")
+            # print(f"validity_pred is\n {validity_pred}")
+            # print(f"ground truth is\n {validity_target}")
             validity_acc = torch.sum(1-torch.abs(validity_target - validity_pred)) / validity_pred.numel()
-            
-            # print(f"validity_acc is {validity_acc}")
             # pause()
             acc += validity_acc
             
             n_samples += len(value_out)
             n_batches += 1
-            # mse = mean_squared_error(data.y.cpu().numpy(), pred.cpu().numpy())
-            mse_, loss_ = self.masked_loss(pred.cpu(), 
-                                     validity_pred.cpu(),
-                                     data.y.detach().cpu(), 
-                                     self.criterion,
-                                     self.criterion_validity)
+            # mse_ = mean_squared_error(data.y.cpu().numpy(), pred.cpu().numpy())
+            # # mse_, loss_ = self.masked_loss(pred.cpu(), 
+            # #                          validity_pred.cpu(),
+            # #                          data.y.detach().cpu(), 
+            # #                          self.criterion,
+            # #                          self.criterion_validity)
+            # mse += mse_
+            # loss += mse_
+            mse_ = self.loss(data.y.cpu(), pred)
             mse += mse_
-            loss += loss_
+            loss += mse_
 
         return mse / n_samples, loss / n_samples, 100 * acc / n_batches

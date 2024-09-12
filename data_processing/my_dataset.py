@@ -10,7 +10,7 @@ def pause():
 
 class MyOwnDataset(InMemoryDataset):
     
-    num_node_labels = 3
+    num_node_labels = 81
     
     def __init__(self, transform=None, pre_transform=None):
         super().__init__(None, transform, pre_transform)
@@ -46,7 +46,7 @@ class MyOwnDataset(InMemoryDataset):
         torch.save(self.collate(data_list), self.processed_paths[0])
 
     def process_(self):
-        dir = "../weights_zip/raw/weights_zip_"
+        dir = "../weights/raw/weights_"
         adjacency_path = dir + "A.txt"
         graph_labels_path = dir + "graph_labels.txt"
         node_labels_path = dir + "node_labels.txt"
@@ -55,7 +55,8 @@ class MyOwnDataset(InMemoryDataset):
 
         edges = np.loadtxt(adjacency_path, delimiter=",", dtype=int)
         graph_labels = np.loadtxt(graph_labels_path, delimiter=",", dtype=float)
-        node_labels = np.loadtxt(node_labels_path, dtype=int)    
+        node_labels = np.loadtxt(node_labels_path, delimiter=",", dtype=float)    
+        
         edge_labels = np.loadtxt(edge_labels_path, dtype=float)
         graph_indicators = np.loadtxt(graph_indicators_path, dtype=int) - 1
             
@@ -83,18 +84,31 @@ class MyOwnDataset(InMemoryDataset):
             graphs[i]["edges"] = new_edges
 
         data_list = []
+        
+        ys = graph_labels
+        mean = ys.mean(axis=0)
+        std = ys.std(axis=0)
+        ys = (ys - mean) / std
 
         for graph_id, graph_data in graphs.items():
             edge_index = torch.tensor(graph_data["edges"], dtype=torch.long).t().contiguous()
-            x = torch.tensor([node_labels[node] for node in graph_data["nodes"]], dtype=torch.float).view(-1,1)
-            x = F.one_hot(x.view(-1).long(), num_classes=self.num_node_labels).float()
+            x = torch.tensor(np.array([node_labels[node] for node in graph_data["nodes"]]), dtype=torch.float)#.view(-1,1)
+            
+            # print(x.shape)
+            # pause()
+            
+            # x = F.one_hot(x.view(-1).long(), num_classes=self.num_node_labels).float()
             edge_attr = torch.tensor(graph_data["edge_labels"], dtype=torch.float)
+            
+            # normalize data.y
+            # y = torch.tensor(ys[graph_id, :], dtype=torch.float).view(1,6)
 
             data = Data(
                 x=x,
                 edge_index=edge_index,
                 edge_attr=edge_attr,
-                y=torch.tensor(np.array(graph_labels[graph_id]), dtype=torch.float).view(1,5),
+                # y=torch.tensor(np.array(graph_labels[graph_id]), dtype=torch.float).view(1,6),
+                y=torch.tensor(ys[graph_id, :], dtype=torch.float).view(1,6)
             )
             
             # print(f"shape of data.x is {data.x.shape}")

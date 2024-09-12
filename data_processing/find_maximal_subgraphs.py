@@ -4,7 +4,7 @@ import os
 Re-organize all data in this folder into a large matrix
 """
 
-dir = "../weights_zip/weights/"
+dir = "../weights/weights/"
 graphlst = list(map(int, os.listdir(dir)))
 graphlst.sort()
 
@@ -121,6 +121,60 @@ def find_largest_2hop_subgraph_by_edges(directory):
 
     return max_core, max_subgraph_nodes, max_edges_count, max_edges
 
+def find_largest_1hop_subtree_by_edges(directory):
+    files = list_files_in_directory(directory)
+    graph_nodes = set()
+
+    # Get all unique nodes in the graph
+    for file in files:
+        _, source_node, target_node = parse_filename(file)
+        graph_nodes.add(source_node)
+        graph_nodes.add(target_node)
+        
+    max_core = 0
+    max_edges_count = 0
+    max_edges = set()
+    # max_subgraph_nodes = set()
+    
+    # Find the 1-hop subtree with the most edges
+    edges, _ = count_edges_in_subgraph(directory, graph_nodes)
+    nbhs = {}
+    for node in graph_nodes:
+        nbhs[node] = set()
+    
+    for edge in edges:
+        source = edge[0]
+        target = edge[1]
+        nbhs[source].add(edge)
+        nbhs[target].add(edge)
+    
+    for node in graph_nodes:
+        if len(nbhs[node]) > max_edges_count:
+            max_edges_count = len(nbhs[node])
+            max_edges = nbhs[node]
+            max_core = node
+            # max_subgraph_nodes = 
+
+    return max_core, max_edges_count, max_edges
+
+def get_neighbors(directory, subgraph_nodes, node=0):
+    
+    edges, _ = count_edges_in_subgraph(directory, subgraph_nodes)
+    nbhs = set()
+    
+    for edge in edges:
+        source = edge[0]
+        target = edge[1]
+        if source == node:
+            nbhs.add(target)
+            continue
+        if target == node:
+            nbhs.add(source)
+            
+    nbhs = list(nbhs)
+    nbhs.sort()
+    return nbhs
+
 # Usage
 if __name__ == "__main__":
 
@@ -130,11 +184,12 @@ if __name__ == "__main__":
 
     f = open("cores.txt", 'w')
 
-    for i in range(1,101):
+    for i in range(1,351):
         directory = dir + str(i)
         # Find the largest 2-hop subgraph in this graph
         max_core, max_subgraph_nodes, max_edges_count, max_edges = find_largest_2hop_subgraph_by_edges(directory)
-        max_1hop_neighbors = len(find_1hop_neighbors(directory, max_core))
+        _, max_1hop_neighbors, _ = find_largest_1hop_subtree_by_edges(directory)
+        # max_1hop_neighbors = len(find_1hop_neighbors(directory, max_core))
         print(f"In graph {i}:")
         print(f"\tthe largest 2-hop subgraph has {max_edges_count} edges")
         print(f"\tthe core is {max_core}")

@@ -7,11 +7,11 @@ with open('./cores.txt') as f:
     cores = [line.rstrip() for line in f]
 f.close()
 
-cores = cores[:100]
+cores = cores[:350]
 
-f = open('../weights_zip/raw/weights_zip_edge_labels.txt', 'w')
-for i in range(1,101):
-    dir = '../weights_zip/weights/' + str(i)
+f = open('../weights/raw/weights_edge_labels.txt', 'w')
+for i in range(1,351):
+    dir = '../weights/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = set([core])
     one_hop_nbrs.update(find_1hop_neighbors(dir, core))
@@ -30,6 +30,6 @@ for i in range(1,101):
             with open(dir + '/' + str(i) + '_' + str(edge_start) + '-' + str(edge_end) + '.txt') as g:
                 vals = [line.rstrip() for line in g]   
         g.close()
-        f.write(str(vals[-1])+'\n')
-        f.write(str(vals[-1])+'\n')
+        f.write(str(vals[1])+'\n')
+        f.write(str(vals[1])+'\n')
 f.close()

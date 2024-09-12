@@ -7,16 +7,16 @@ with open('./cores.txt') as f:
     cores = [line.rstrip() for line in f]
 f.close()
 
-cores = cores[:100]
+cores = cores[:350]
 
-rawpath = '../weights_zip/raw/'
+rawpath = '../weights/raw/'
 if not os.path.exists(rawpath):
     os.makedirs(rawpath)
 
-f = open(rawpath + 'weights_zip_A.txt', 'w')
+f = open(rawpath + 'weights_A.txt', 'w')
 num_previous_nodes = 0
-for i in range(1,101):
-    dir = '../weights_zip/weights/' + str(i)
+for i in range(1,351):
+    dir = '../weights/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = set([core])
     one_hop_nbrs.update(find_1hop_neighbors(dir, core))
