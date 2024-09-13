@@ -50,13 +50,13 @@ if __name__ == "__main__":
     out_dim = 7
     n_units = 256
     lr = 0.0012
-    drop_prob = 0.4 #0.5
+    drop_prob = 0.35 #0.5
     weight_decay = 5e-4
     momentum = 0.9
     batch_size = 128
     n_folds = 10
     test_epoch = 1
-    max_k = 8
+    max_k = 10
     aggregator = "concat"
     test_name = "DeepGraphConv_linear_Baseline_Test"
 
