@@ -40,8 +40,6 @@ class GraphRegConv_GNN(torch.nn.Module):
         self.conv1 = GraphConv(in_channels, out_channels)        
         self.conv2 = GraphConv(out_channels, out_channels) 
         
-        # self.gated_conv = GatedGraphConv(out_channels, num_layers=self.max_k)
-        
         self.out_dim = out_dim
         self.max_k = max_k
         self.layer_norm = torch.nn.BatchNorm1d(self.out_channels)

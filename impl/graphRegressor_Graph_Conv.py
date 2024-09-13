@@ -75,7 +75,7 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
                 self.optimizer.zero_grad()                
                 out, _ = self.model(data, hidden_layer_aggregator=aggregator)
                 
-                # mse_threshold = 0.25
+                # mse_threshold = 0.2
                 loss = self.loss(out, data.y)
                 # if loss.item() < mse_threshold:
                 #     loss = self.L1loss(out, data.y)             
@@ -162,8 +162,7 @@ class modelImplementation_GraphRegressor(torch.nn.Module):
                 for name, param in self.model.named_parameters():
                     if param.grad is not None:
                         print(f"Grad of {name}: {param.grad.norm()}")
-                print(out)
-                print(data.y)
+                print(torch.abs(out - data.y))
                 # pause()
             # pause()
 

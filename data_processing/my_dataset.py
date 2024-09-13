@@ -80,10 +80,8 @@ class MyOwnDataset(InMemoryDataset):
 
         data_list = []
         
-        # ys = graph_labels
-        # mean = ys.mean(axis=0)
-        # std = ys.std(axis=0)
-        # ys = (ys - mean) / std
+        ys = graph_labels
+        ys /= ys.max()
 
         for graph_id, graph_data in graphs.items():
             edge_index = torch.tensor(graph_data["edges"], dtype=torch.long).t().contiguous()
@@ -102,8 +100,8 @@ class MyOwnDataset(InMemoryDataset):
                 x=x,
                 edge_index=edge_index,
                 edge_attr=edge_attr,
-                y=torch.tensor(np.array(graph_labels[graph_id]), dtype=torch.float).view(1,7),
-                # y=torch.tensor(ys[graph_id, :], dtype=torch.float).view(1,7)
+                # y=torch.tensor(np.array(graph_labels[graph_id]), dtype=torch.float).view(1,7),
+                y=torch.tensor(ys[graph_id, :], dtype=torch.float).view(1,7)
             )
             
             # print(f"shape of data.x is {data.x.shape}")
