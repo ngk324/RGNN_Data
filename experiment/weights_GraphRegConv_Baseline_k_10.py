@@ -46,14 +46,14 @@ def getcross_validation_split(n_folds=2, batch_size=1):
 
 
 if __name__ == "__main__":    
-    n_epochs = 300
-    out_dim = 6
-    n_units = 128
-    lr = 5e-4
-    drop_prob = 0.5
+    n_epochs = 500
+    out_dim = 7
+    n_units = 256
+    lr = 0.0012
+    drop_prob = 0.4 #0.5
     weight_decay = 5e-4
     momentum = 0.9
-    batch_size = 64
+    batch_size = 128
     n_folds = 10
     test_epoch = 1
     max_k = 8
@@ -124,11 +124,6 @@ if __name__ == "__main__":
             max_k=max_k,
         ).to(device)
         
-        # for param in model.parameters():
-        #     if not param.requires_grad:
-        #         print(f"Parameter {param} does not require gradients")
-        # # pause()
-
         model_impl = modelImplementation_GraphRegressor(
             model, lr, criterion, device
         ).to(device)

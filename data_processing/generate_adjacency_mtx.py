@@ -7,7 +7,7 @@ with open('./cores.txt') as f:
     cores = [line.rstrip() for line in f]
 f.close()
 
-cores = cores[:350]
+cores = cores[:500]
 
 rawpath = '../weights/raw/'
 if not os.path.exists(rawpath):
@@ -15,7 +15,7 @@ if not os.path.exists(rawpath):
 
 f = open(rawpath + 'weights_A.txt', 'w')
 num_previous_nodes = 0
-for i in range(1,351):
+for i in range(1,501):
     dir = '../weights/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = set([core])

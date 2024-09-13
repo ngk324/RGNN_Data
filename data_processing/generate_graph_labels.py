@@ -8,14 +8,25 @@ with open('./cores.txt') as f:
 f.close()
 
 f = open('../weights/raw/weights_graph_labels.txt', 'w')
-cores = cores[:350]
-for i in range(1,351):
+cores = cores[:500]
+
+maxlen = []
+
+for i in range(1,501):
+    dir = '../weights/weights/' + str(i)
+    core = int(cores[i-1])
+    one_hop_nbrs = find_1hop_neighbors(dir, core)
+    one_hop_nbrs = list(one_hop_nbrs)
+    maxlen.append(len(one_hop_nbrs))
+    
+print(max(maxlen))
+
+for i in range(1,501):
     dir = '../weights/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = find_1hop_neighbors(dir, core)
     one_hop_nbrs = list(one_hop_nbrs)
     count = 0
-    print(len(one_hop_nbrs))
     for nbr in one_hop_nbrs:
         count += 1
         if nbr > core:
@@ -25,15 +36,15 @@ for i in range(1,351):
             with open(dir + '/' + str(i) + '_' + str(nbr) + '-' + str(core) + '.txt') as g:
                 vals = [line.rstrip() for line in g]   
         g.close()
-        if count < 6:
+        if count < max(maxlen):
             f.write(vals[1] + ', ')
         else:
             f.write(vals[1] + '\n')     
     # Fill the trailing entries with -1
-    while count < 6:
+    while count < max(maxlen):
         count += 1
         # if count < 6: f.write('-1, ')
         # else: f.write('-1\n')
-        if count < 6: f.write('0, ')
+        if count < max(maxlen): f.write('0, ')
         else: f.write('0\n')
 f.close()

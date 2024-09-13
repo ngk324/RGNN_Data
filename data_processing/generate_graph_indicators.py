@@ -8,7 +8,7 @@ with open('./cores.txt') as f:
 f.close()
 
 f = open('../weights/raw/weights_graph_indicator.txt', 'w')
-for i in range(1,351):
+for i in range(1,501):
     dir = '../weights/weights/' + str(i)
     core = int(cores[i-1])
     one_hop_nbrs = set([core])

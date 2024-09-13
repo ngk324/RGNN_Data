@@ -14,16 +14,11 @@ class MyOwnDataset(InMemoryDataset):
     
     def __init__(self, transform=None, pre_transform=None):
         super().__init__(None, transform, pre_transform)
-        # torch.serialization.add_safe_globals([MyOwnDataset, InMemoryDataset])
-        # self.data, self.slices = torch.load(self.processed_paths[0], weights_only=True)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=FutureWarning)
             self.data, self.slices = torch.load(self.processed_paths[0])
         self.num_node_labels = self.num_node_labels
         self.process()
-        
-    # def __num_node_labels__(self):
-    #     return self.num_node_labels
 
     @property
     def raw_file_names(self):
@@ -85,10 +80,10 @@ class MyOwnDataset(InMemoryDataset):
 
         data_list = []
         
-        ys = graph_labels
-        mean = ys.mean(axis=0)
-        std = ys.std(axis=0)
-        ys = (ys - mean) / std
+        # ys = graph_labels
+        # mean = ys.mean(axis=0)
+        # std = ys.std(axis=0)
+        # ys = (ys - mean) / std
 
         for graph_id, graph_data in graphs.items():
             edge_index = torch.tensor(graph_data["edges"], dtype=torch.long).t().contiguous()
@@ -107,8 +102,8 @@ class MyOwnDataset(InMemoryDataset):
                 x=x,
                 edge_index=edge_index,
                 edge_attr=edge_attr,
-                # y=torch.tensor(np.array(graph_labels[graph_id]), dtype=torch.float).view(1,6),
-                y=torch.tensor(ys[graph_id, :], dtype=torch.float).view(1,6)
+                y=torch.tensor(np.array(graph_labels[graph_id]), dtype=torch.float).view(1,7),
+                # y=torch.tensor(ys[graph_id, :], dtype=torch.float).view(1,7)
             )
             
             # print(f"shape of data.x is {data.x.shape}")

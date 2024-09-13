@@ -13,7 +13,7 @@ f.close()
 
 num_previous_nodes = 0
 pos = []
-for i in range(1,351):
+for i in range(1,501):
     
     print(f"i = {i}")
     
