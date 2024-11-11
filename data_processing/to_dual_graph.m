@@ -35,9 +35,9 @@ for i = 1:(numel(n_)-1)
         if ediff(1) == 0 || ediff(2) == 0
             A_ = [A_; i, j];
             if ediff(1) == 0
-                w_ = [w_; w(ediff(1))];
+                w_ = [w_; w(e1(1))];
             else
-                w_ = [w_; w(ediff(2))];
+                w_ = [w_; w(e2(2))];
             end
         end
     end
